@@ -1,6 +1,4 @@
-// Main entry point for the design system
 
-// Theme
 export { 
   ScaledThemeProvider, 
   useFontScaleValue,
@@ -9,11 +7,9 @@ export {
 } from './theme';
 export type { Theme, ScaledThemeProviderProps } from './theme';
 
-// Hooks
-export { useFontScale, getFontScale } from './hooks';
+export { useFontScale } from './hooks';
 export type { UseFontScaleOptions } from './hooks';
 
-// Components
 export {
   Box,
   Text,

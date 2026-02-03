@@ -1,9 +1,5 @@
 import { createTheme } from '@shopify/restyle';
 
-/**
- * Base colors for the design system.
- * These don't scale with font size.
- */
 const palette = {
   // Primary colors
   primary: '#007AFF',
@@ -41,9 +37,6 @@ const palette = {
   transparent: 'transparent',
 };
 
-/**
- * Base font sizes before scaling.
- */
 const baseFontSizes = {
   xs: 10,
   sm: 12,
@@ -57,9 +50,6 @@ const baseFontSizes = {
   '6xl': 48,
 };
 
-/**
- * Base spacing values before scaling.
- */
 const baseSpacing = {
   none: 0,
   xs: 4,
@@ -74,68 +64,31 @@ const baseSpacing = {
   '6xl': 64,
 };
 
-/**
- * Line height multipliers for different text types.
- * Applied to the scaled font size.
- */
 const lineHeightMultipliers = {
   tight: 1.2,
   normal: 1.5,
   relaxed: 1.75,
 };
 
-/**
- * Scale caps for different text types.
- * Larger text (headings) needs less scaling for readability.
- * Smaller text (body, captions) can scale more for accessibility.
- */
 const scaleCaps = {
-  heading: 1.4,      // Large text - cap scaling at 1.4x
-  body: 2.0,         // Body text - full scaling for accessibility
-  button: 1.3,       // Button text - space constraints
-  caption: 1.8,      // Captions - slightly less than body
-  spacing: 1.5,      // Spacing - moderate scaling
+  heading: 1.4,
+  body: 2.0,
+  button: 1.3,
+  caption: 1.8,
+  spacing: 1.5,
 };
 
-/**
- * Applies a capped scale to a base value.
- * 
- * @param baseValue The base value before scaling
- * @param fontScale The current font scale (e.g., 1.0, 1.5, 2.0)
- * @param cap The maximum scale factor to apply
- * @returns The scaled value, capped at baseValue * cap
- */
 function applyScale(baseValue: number, fontScale: number, cap: number): number {
   const effectiveScale = Math.min(fontScale, cap);
   return Math.round(baseValue * effectiveScale);
 }
 
-/**
- * Returns base font sizes - NOT scaled.
- * React Native's allowFontScaling handles font scaling automatically.
- * We don't scale fonts in the theme to avoid double-scaling.
- */
-function getBaseFontSizes() {
-  return baseFontSizes;
-}
-
-/**
- * Creates scaled font sizes with different caps for different text types.
- * Since we disable allowFontScaling, we apply scaling manually here.
- * 
- * @param fontScale The actual font scale from the native module
- */
 function createScaledFontSizes(fontScale: number) {
   return {
-    // Caption sizes (cap at 1.8x)
     xs: applyScale(baseFontSizes.xs, fontScale, scaleCaps.caption),
     sm: applyScale(baseFontSizes.sm, fontScale, scaleCaps.caption),
-    
-    // Body sizes (full scaling for accessibility)
     md: applyScale(baseFontSizes.md, fontScale, scaleCaps.body),
     lg: applyScale(baseFontSizes.lg, fontScale, scaleCaps.body),
-    
-    // Heading sizes (cap at 1.4x - large text needs less scaling)
     xl: applyScale(baseFontSizes.xl, fontScale, scaleCaps.heading),
     '2xl': applyScale(baseFontSizes['2xl'], fontScale, scaleCaps.heading),
     '3xl': applyScale(baseFontSizes['3xl'], fontScale, scaleCaps.heading),
@@ -145,9 +98,6 @@ function createScaledFontSizes(fontScale: number) {
   };
 }
 
-/**
- * Creates scaled spacing values.
- */
 function createScaledSpacing(fontScale: number) {
   const scaledSpacing: Record<string, number> = {};
   
@@ -159,7 +109,6 @@ function createScaledSpacing(fontScale: number) {
     }
   }
   
-  // Add negative spacing values for margins
   scaledSpacing['-xs'] = -scaledSpacing.xs;
   scaledSpacing['-sm'] = -scaledSpacing.sm;
   scaledSpacing['-md'] = -scaledSpacing.md;
@@ -170,35 +119,13 @@ function createScaledSpacing(fontScale: number) {
   return scaledSpacing;
 }
 
-/**
- * Creates a @shopify/restyle theme with manually scaled font sizes.
- * 
- * Since React Native's native font scaling has caching issues on New Architecture,
- * we disable allowFontScaling on Text components and apply scaling manually here.
- * 
- * Different text types have different scale caps:
- * - Headings: cap at 1.4x (large text needs less scaling for readability)
- * - Body text: cap at 2.0x (full scaling for accessibility)
- * - Button text: cap at 1.3x (space constraints)
- * - Captions: cap at 1.8x
- * - Spacing: cap at 1.5x (moderate scaling)
- * 
- * @param fontScale The actual font scale from the native module
- * @param updateKey Optional key to force theme recreation
- * @returns A complete @shopify/restyle theme object
- */
-export function createScaledTheme(fontScale: number = 1, updateKey: number = 0) {
-  // Scale font sizes manually (allowFontScaling is disabled)
+export function createScaledTheme(fontScale: number = 1) {
   const fontSizes = createScaledFontSizes(fontScale);
-  // Spacing also scales with font scale
   const spacing = createScaledSpacing(fontScale);
   
   return createTheme({
     colors: {
-      // Map palette to semantic color names
       ...palette,
-      
-      // Semantic mappings
       background: palette.white,
       foreground: palette.gray900,
       
@@ -251,7 +178,6 @@ export function createScaledTheme(fontScale: number = 1, updateKey: number = 0) 
       full: 9999,
     },
     
-    // Z-index scale
     zIndices: {
       base: 0,
       dropdown: 100,
@@ -262,14 +188,12 @@ export function createScaledTheme(fontScale: number = 1, updateKey: number = 0) 
       tooltip: 600,
     },
     
-    // Breakpoints for responsive design
     breakpoints: {
       phone: 0,
       tablet: 768,
       largeTablet: 1024,
     },
     
-    // Text variants with scaled sizes and proportional line heights
     textVariants: {
       defaults: {
         color: 'textPrimary',
@@ -277,7 +201,6 @@ export function createScaledTheme(fontScale: number = 1, updateKey: number = 0) 
         lineHeight: Math.round(fontSizes.md * lineHeightMultipliers.normal),
       },
       
-      // Headings - capped at 1.4x scale
       h1: {
         fontSize: fontSizes['6xl'],
         lineHeight: Math.round(fontSizes['6xl'] * lineHeightMultipliers.tight),
@@ -315,7 +238,6 @@ export function createScaledTheme(fontScale: number = 1, updateKey: number = 0) 
         color: 'textPrimary',
       },
       
-      // Body text - full scaling for accessibility
       body: {
         fontSize: fontSizes.md,
         lineHeight: Math.round(fontSizes.md * lineHeightMultipliers.normal),
@@ -332,7 +254,6 @@ export function createScaledTheme(fontScale: number = 1, updateKey: number = 0) 
         color: 'textSecondary',
       },
       
-      // Button text - capped at 1.3x scale for space constraints
       button: {
         fontSize: applyScale(baseFontSizes.md, fontScale, scaleCaps.button),
         lineHeight: Math.round(applyScale(baseFontSizes.md, fontScale, scaleCaps.button) * lineHeightMultipliers.normal),
@@ -352,7 +273,6 @@ export function createScaledTheme(fontScale: number = 1, updateKey: number = 0) 
         color: 'textPrimary',
       },
       
-      // Captions - capped at 1.8x scale
       caption: {
         fontSize: fontSizes.xs,
         lineHeight: Math.round(fontSizes.xs * lineHeightMultipliers.normal),
@@ -364,7 +284,6 @@ export function createScaledTheme(fontScale: number = 1, updateKey: number = 0) 
         color: 'textSecondary',
       },
       
-      // Labels
       label: {
         fontSize: fontSizes.sm,
         lineHeight: Math.round(fontSizes.sm * lineHeightMultipliers.normal),
@@ -378,7 +297,6 @@ export function createScaledTheme(fontScale: number = 1, updateKey: number = 0) 
         color: 'textPrimary',
       },
       
-      // Links
       link: {
         fontSize: fontSizes.md,
         lineHeight: Math.round(fontSizes.md * lineHeightMultipliers.normal),
@@ -387,7 +305,6 @@ export function createScaledTheme(fontScale: number = 1, updateKey: number = 0) 
       },
     },
     
-    // Card variants
     cardVariants: {
       defaults: {
         backgroundColor: 'cardBackground',
@@ -413,7 +330,6 @@ export function createScaledTheme(fontScale: number = 1, updateKey: number = 0) 
       },
     },
     
-    // Button variants
     buttonVariants: {
       defaults: {
         paddingVertical: 'md',
@@ -455,7 +371,6 @@ export function createScaledTheme(fontScale: number = 1, updateKey: number = 0) 
       },
     },
     
-    // Input variants
     inputVariants: {
       defaults: {
         paddingVertical: 'md',
@@ -501,15 +416,8 @@ export function createScaledTheme(fontScale: number = 1, updateKey: number = 0) 
   });
 }
 
-/**
- * The theme type for use with @shopify/restyle's useTheme hook and components.
- */
 export type Theme = ReturnType<typeof createScaledTheme>;
 
-/**
- * Default theme with 1.0 font scale.
- * Use createScaledTheme() for dynamic scaling.
- */
 export const defaultTheme = createScaledTheme(1);
 
 export default createScaledTheme;
